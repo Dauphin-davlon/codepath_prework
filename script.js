@@ -4,17 +4,29 @@ const cluePauseTime = 333; //how long to pause in between clues
 const nextClueWaitTime = 1000; //how long to wait before starting playback of the clue sequence
 
 
-var pattern = [2, 2, 4, 3, 2, 1, 2, 4];
+var pattern = [4, 5, 2, 1, 2, 4,3, 5];
 var progress = 0; 
 var gamePlaying = false;
 var tonePlaying = false;
 var volume = 0.5;  //must be between 0.0 and 1.0
 var guessCounter = 0;
+var mistakesCounter =  0;
 
+
+function generatePattern(array){
+  var min = 1; 
+  var max = 5; 
+  for(let i=0;i<array.length;i++){
+    var result = Math.round(Math.random()*(max - min)+min); 
+    array[i] = result;
+  }
+}
 function startGame(){
     //initialize game variables
     progress = 0;
+    mistakesCounter =  0;
     gamePlaying = true;
+    generatePattern(pattern);
   
     // swap the Start and Stop buttons
     document.getElementById("startBtn").classList.add("hidden");
@@ -35,7 +47,8 @@ const freqMap = {
   1: 261.6,
   2: 329.6,
   3: 392,
-  4: 466.2
+  4: 466.2,
+  5:451.0
 }
 function playTone(btn,len){ 
   o.frequency.value = freqMap[btn]
@@ -108,6 +121,10 @@ function winGame(){
   alert("Game Over. You won!");
 }
 
+function mistakeAlert(){
+  alert("you have made " + mistakesCounter + " mistake. " + (3 - mistakesCounter) + "more chance.")
+}
+
 function guess(btn){
   console.log("user guessed: " + btn);
   
@@ -133,6 +150,13 @@ function guess(btn){
   }else{
     //Guess was incorrect
     //GAME OVER: LOSE!
-    loseGame();
+    mistakesCounter++
+    if(mistakesCounter <3){
+      mistakeAlert();
+      playClueSequence();
+    }
+    else{
+      loseGame();
+    }
   }
 }
